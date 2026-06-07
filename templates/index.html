@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تحلیلگر محتوای SEO · Reranker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+  <style>
+    :root {
+      --p: #0d9488; --p-h: #0f766e; --on-p: #fff;
+      --p-c: #ccfbf1; --on-p-c: #0a3d36;
+      --accent: #6366f1;
+      --surface: #fff; --surf-v: #f1f5f6; --bg: #eef2f3;
+      --on-s: #14201f; --on-s-v: #5a6b69; --outline: #d6e0df;
+      --err: #ba1a1a; --ok: #1e8e3e;
+      --s1: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.08);
+      --s2: 0 4px 14px rgba(13,148,136,.14), 0 2px 6px rgba(0,0,0,.06);
+      --r: 16px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --p: #5eead4; --p-h: #7df0de; --on-p: #06302b; --p-c: #134e48; --on-p-c: #ccfbf1;
+        --accent: #a5b4fc;
+        --surface: #161e1d; --surf-v: #1f2a29; --bg: #0e1514;
+        --on-s: #e3eceb; --on-s-v: #b3c2c0; --outline: #364442;
+        --s1: 0 1px 3px rgba(0,0,0,.4); --s2: 0 6px 18px rgba(0,0,0,.5);
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { font-family: 'Vazirmatn', system-ui, sans-serif; background: var(--bg);
+      color: var(--on-s); line-height: 1.7; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+    .material-symbols-rounded { font-family: 'Material Symbols Rounded'; line-height: 1;
+      vertical-align: middle; font-feature-settings: 'liga'; }
+    .topbar { background: linear-gradient(120deg, var(--p), var(--accent)); color: #fff;
+      padding: 26px 20px 30px; box-shadow: var(--s2); }
+    .topbar-inner { max-width: 960px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
+    .topbar .logo { width: 52px; height: 52px; border-radius: 14px; background: rgba(255,255,255,.18);
+      display: grid; place-items: center; }
+    .topbar .logo .material-symbols-rounded { font-size: 30px; }
+    .topbar h1 { font-size: 1.35rem; font-weight: 700; margin: 0; }
+    .topbar p { margin: 2px 0 0; font-size: .82rem; opacity: .9; font-weight: 300; }
+    .container { max-width: 960px; margin: -14px auto 60px; padding: 0 16px; }
+    .card { background: var(--surface); border-radius: var(--r); box-shadow: var(--s1);
+      padding: 22px; margin-bottom: 18px; border: 1px solid var(--outline); }
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab { flex: 1; padding: 12px; border: 1.5px solid var(--outline); background: var(--surface);
+      border-radius: 12px; cursor: pointer; font-family: inherit; font-size: .95rem; font-weight: 600;
+      color: var(--on-s-v); display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all .15s; }
+    .tab.active { background: var(--p); color: var(--on-p); border-color: var(--p); box-shadow: var(--s2); }
+    .field { margin-bottom: 18px; }
+    label { display: flex; align-items: center; gap: 6px; font-size: .9rem; font-weight: 600;
+      margin-bottom: 8px; }
+    label .material-symbols-rounded { font-size: 19px; color: var(--p); }
+    input, select { width: 100%; font-family: inherit; font-size: 1rem; padding: 12px 14px;
+      border: 1.5px solid var(--outline); border-radius: 12px; background: var(--surf-v);
+      color: var(--on-s); transition: border-color .15s, box-shadow .15s; }
+    input:focus, select:focus { outline: none; border-color: var(--p); background: var(--surface);
+      box-shadow: 0 0 0 3px var(--p-c); }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .row > * { flex: 1; min-width: 120px; }
+    .hint { font-size: .77rem; color: var(--on-s-v); margin-top: 6px; }
+    .row-key { display: flex; gap: 8px; }
+    .row-key input { flex: 1; }
+    .icon-btn { border: 1.5px solid var(--outline); background: var(--surf-v); border-radius: 12px;
+      width: 48px; cursor: pointer; color: var(--on-s-v); display: grid; place-items: center; }
+    .icon-btn:hover { background: var(--p-c); color: var(--on-p-c); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+      background: var(--p); color: var(--on-p); font-family: inherit; font-size: 1.02rem; font-weight: 600;
+      border: none; border-radius: 999px; padding: 14px 24px; cursor: pointer; box-shadow: var(--s2);
+      transition: background .15s, transform .08s; }
+    .btn:hover { background: var(--p-h); }
+    .btn:active { transform: scale(.985); }
+    .btn:disabled { opacity: .6; cursor: not-allowed; box-shadow: none; }
+    .btn-ghost { background: var(--surf-v); color: var(--p); box-shadow: none; border: 1.5px solid var(--outline); }
+    .btn-sm { width: auto; padding: 9px 16px; font-size: .85rem; }
+    .spinner { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid rgba(255,255,255,.45);
+      border-top-color: #fff; animation: spin .7s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading .spinner { display: inline-block; }
+    details.settings { margin-bottom: 18px; }
+    details.settings summary { cursor: pointer; font-weight: 600; font-size: .92rem; padding: 6px 0;
+      display: flex; align-items: center; gap: 8px; list-style: none; }
+    details.settings summary::-webkit-details-marker { display: none; }
+    details.settings summary .material-symbols-rounded { color: var(--p); }
+    .alert { display: none; align-items: center; gap: 10px; background: #fdecec; color: var(--err);
+      border: 1px solid #f5c2c2; border-radius: 12px; padding: 12px 15px; margin-bottom: 16px; font-size: .9rem; }
+    @media (prefers-color-scheme: dark) { .alert { background: #3a1414; border-color: #6b2020; color: #ffb4ab; } }
+    .alert.show { display: flex; }
+    /* manual urls */
+    .murl { display: flex; gap: 8px; margin-bottom: 8px; }
+    .murl input { flex: 1; }
+    .murl .icon-btn { width: 44px; }
+    /* progress */
+    .prog-wrap { display: none; }
+    .prog-wrap.show { display: block; }
+    .bar-track { height: 8px; border-radius: 999px; background: var(--surf-v); overflow: hidden; margin-bottom: 12px; }
+    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--p));
+      width: 0; transition: width .4s; }
+    .log { font-family: ui-monospace, monospace; font-size: .8rem; background: var(--surf-v);
+      border-radius: 12px; padding: 12px 14px; max-height: 220px; overflow-y: auto; white-space: pre-wrap;
+      direction: rtl; color: var(--on-s-v); }
+    .log div { padding: 1px 0; }
+    /* history */
+    .hist-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1.5px solid var(--outline);
+      border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: all .15s; }
+    .hist-item:hover { border-color: var(--p); }
+    .hist-item.sel { border-color: var(--p); background: var(--p-c); }
+    .hist-item .material-symbols-rounded { color: var(--p); }
+    .hist-q { font-weight: 600; flex: 1; }
+    .hist-meta { font-size: .76rem; color: var(--on-s-v); }
+    /* results */
+    .results-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .results-head h2 { font-size: 1.1rem; margin: 0; font-weight: 700; }
+    .results-head .q { color: var(--p); }
+    .url-card { border: 1px solid var(--outline); border-radius: 14px; margin-bottom: 14px; overflow: hidden; }
+    .url-head { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--surf-v); }
+    .rank-badge { flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; display: grid;
+      place-items: center; font-weight: 700; font-size: .8rem; background: var(--p); color: var(--on-p); }
+    .rank-badge.manual { background: var(--accent); font-size: .62rem; }
+    .url-meta { flex: 1; min-width: 0; }
+    .url-title { font-weight: 600; font-size: .96rem; word-break: break-word; }
+    .url-link { font-size: .76rem; color: var(--on-s-v); text-decoration: none; direction: ltr; display: block; }
+    .url-stats { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip { font-size: .72rem; background: var(--surface); border: 1px solid var(--outline); color: var(--on-s-v);
+      padding: 3px 9px; border-radius: 999px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .chip-max { background: var(--p-c); color: var(--on-p-c); border-color: transparent; }
+    .chunk-list { padding: 6px 14px 4px; }
+    .chunk { padding: 9px 0; border-bottom: 1px dashed var(--outline); }
+    .chunk:last-child { border-bottom: none; }
+    .chunk-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .chunk-bar { flex: 1; height: 7px; border-radius: 999px; background: var(--surf-v); overflow: hidden; }
+    .chunk-bar > i { display: block; height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--p)); }
+    .chunk-score { font-size: .78rem; font-weight: 600; min-width: 48px; text-align: left; direction: ltr;
+      font-variant-numeric: tabular-nums; color: var(--p); }
+    .chunk-text { font-size: .85rem; color: var(--on-s); }
+    .more { margin: 6px 14px 14px; }
+    footer { text-align: center; font-size: .75rem; color: var(--on-s-v); padding: 6px 0 30px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="logo"><span class="material-symbols-rounded">readiness_score</span></div>
+      <div>
+        <h1>تحلیلگر محتوای SEO</h1>
+        <p>کیورد → نتایج گوگل → اسکرپ صفحات → چانک‌بندی → امتیاز ارتباط با Voyage Reranker</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="alert" class="alert"><span class="material-symbols-rounded">error</span><span id="alert-msg"></span></div>
+
+    <details class="settings card" id="settings">
+      <summary><span class="material-symbols-rounded">key</span> تنظیمات و کلیدها</summary>
+      <div style="margin-top:14px">
+        <div class="field">
+          <label for="serper"><span class="material-symbols-rounded">travel_explore</span> کلید Serper</label>
+          <div class="row-key">
+            <input type="password" id="serper" placeholder="کلید serper.dev" />
+            <button type="button" class="icon-btn" data-eye="serper"><span class="material-symbols-rounded">visibility</span></button>
+          </div>
+          <div class="hint" id="serper-hint">برای جستجوی گوگل و اسکرپ صفحات. در مرورگر شما ذخیره می‌شود.</div>
+        </div>
+        <div class="field">
+          <label for="voyage"><span class="material-symbols-rounded">tune</span> کلید Voyage AI</label>
+          <div class="row-key">
+            <input type="password" id="voyage" placeholder="pa-..." />
+            <button type="button" class="icon-btn" data-eye="voyage"><span class="material-symbols-rounded">visibility</span></button>
+          </div>
+          <div class="hint" id="voyage-hint">برای محاسبهٔ امتیاز ارتباط (rerank-2.5). در مرورگر شما ذخیره می‌شود.</div>
+        </div>
+        <div class="row">
+          <div><label for="gl">کشور (gl)</label><input type="text" id="gl" value="ir" /></div>
+          <div><label for="hl">زبان (hl)</label><input type="text" id="hl" value="fa" /></div>
+        </div>
+      </div>
+    </details>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="new"><span class="material-symbols-rounded">add_circle</span> تحلیل جدید</button>
+      <button class="tab" data-tab="db"><span class="material-symbols-rounded">database</span> رِرَنک از دیتابیس</button>
+    </div>
+
+    <!-- TAB: new analysis -->
+    <div class="card tabpane" id="pane-new">
+      <div class="field">
+        <label for="keyword"><span class="material-symbols-rounded">search</span> کیورد</label>
+        <input type="text" id="keyword" placeholder="مثلاً: بهترین صرافی ارز دیجیتال" />
+      </div>
+      <div class="row">
+        <div>
+          <label for="topn"><span class="material-symbols-rounded">format_list_numbered</span> تعداد نتایج برتر</label>
+          <select id="topn">
+            <option>3</option><option selected>5</option><option>7</option><option>10</option>
+          </select>
+        </div>
+        <div></div>
+      </div>
+      <div class="field">
+        <label><span class="material-symbols-rounded">add_link</span> URLهای دستی (اختیاری)</label>
+        <div id="murls"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="add-murl"><span class="material-symbols-rounded">add</span> افزودن URL</button>
+      </div>
+      <button class="btn" id="run-new"><span class="spinner"></span><span class="material-symbols-rounded">analytics</span> تحلیل کن</button>
+    </div>
+
+    <!-- TAB: db rerank -->
+    <div class="card tabpane hidden" id="pane-db">
+      <div class="field">
+        <label><span class="material-symbols-rounded">history</span> یک تحلیل ذخیره‌شده انتخاب کنید</label>
+        <div id="history"><div class="hint">در حال بارگذاری…</div></div>
+      </div>
+      <div class="field">
+        <label for="newkw"><span class="material-symbols-rounded">search</span> کیورد جدید برای رِرَنک</label>
+        <input type="text" id="newkw" placeholder="کیورد جدید (بدون اسکرپ مجدد، فقط امتیازدهی دوباره)" />
+      </div>
+      <button class="btn" id="run-db"><span class="spinner"></span><span class="material-symbols-rounded">restart_alt</span> رِرَنک کن</button>
+    </div>
+
+    <!-- progress -->
+    <div class="card prog-wrap" id="prog">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-weight:600">
+        <span class="spinner" style="display:inline-block;border-color:var(--p-c);border-top-color:var(--p)"></span>
+        <span id="prog-title">در حال پردازش…</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="prog-bar"></div></div>
+      <div class="log" id="log"></div>
+    </div>
+
+    <!-- results -->
+    <div class="card hidden" id="results-card">
+      <div class="results-head">
+        <h2>نتایج: <span class="q" id="res-q"></span></h2>
+        <button class="btn btn-ghost btn-sm" id="export-btn" style="margin-inline-start:auto">
+          <span class="material-symbols-rounded">download</span> خروجی اکسل
+        </button>
+      </div>
+      <div id="results"></div>
+    </div>
+
+    <footer>Reranker: Serper + Voyage AI <code>rerank-2.5</code> · هم‌خانوادهٔ پروژهٔ امتیازدهی عنوان</footer>
+  </div>
+
+  <script>
+    const $ = (s) => document.querySelector(s);
+    const SERVER_HAS_SERPER = {{ 'true' if has_serper else 'false' }};
+    const SERVER_HAS_VOYAGE = {{ 'true' if has_voyage else 'false' }};
+    const serper = $('#serper'), voyage = $('#voyage');
+    const alertBox = $('#alert'), alertMsg = $('#alert-msg');
+    let currentQueryId = null, selectedHistId = null;
+
+    // restore
+    serper.value = localStorage.getItem('serper_key') || '';
+    voyage.value = localStorage.getItem('voyage_key') || '';
+    $('#gl').value = localStorage.getItem('gl') || 'ir';
+    $('#hl').value = localStorage.getItem('hl') || 'fa';
+    $('#keyword').value = localStorage.getItem('last_kw') || '';
+    if (SERVER_HAS_SERPER) $('#serper-hint').textContent = 'روی سرور تنظیم شده — می‌توانید خالی بگذارید.';
+    if (SERVER_HAS_VOYAGE) $('#voyage-hint').textContent = 'روی سرور تنظیم شده — می‌توانید خالی بگذارید.';
+    if ((!SERVER_HAS_SERPER && !serper.value) || (!SERVER_HAS_VOYAGE && !voyage.value)) $('#settings').open = true;
+
+    document.querySelectorAll('[data-eye]').forEach(b => b.addEventListener('click', () => {
+      const inp = $('#' + b.dataset.eye);
+      const show = inp.type === 'password';
+      inp.type = show ? 'text' : 'password';
+      b.querySelector('.material-symbols-rounded').textContent = show ? 'visibility_off' : 'visibility';
+    }));
+
+    function showError(m) { alertMsg.textContent = m; alertBox.classList.add('show');
+      alertBox.scrollIntoView({behavior:'smooth', block:'center'}); }
+    function clearError() { alertBox.classList.remove('show'); }
+    function saveKeys() {
+      localStorage.setItem('serper_key', serper.value.trim());
+      localStorage.setItem('voyage_key', voyage.value.trim());
+      localStorage.setItem('gl', $('#gl').value.trim());
+      localStorage.setItem('hl', $('#hl').value.trim());
+    }
+
+    // tabs
+    document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      const tab = t.dataset.tab;
+      $('#pane-new').classList.toggle('hidden', tab !== 'new');
+      $('#pane-db').classList.toggle('hidden', tab !== 'db');
+      if (tab === 'db') loadHistory();
+    }));
+
+    // manual urls
+    $('#add-murl').addEventListener('click', () => {
+      const row = document.createElement('div');
+      row.className = 'murl';
+      row.innerHTML = '<input type="url" placeholder="https://example.com/page" class="m-url" />' +
+        '<input type="text" placeholder="عنوان (اختیاری)" class="m-title" style="max-width:160px" />' +
+        '<button type="button" class="icon-btn"><span class="material-symbols-rounded">close</span></button>';
+      row.querySelector('button').addEventListener('click', () => row.remove());
+      $('#murls').appendChild(row);
+    });
+    function collectMurls() {
+      return Array.from(document.querySelectorAll('#murls .murl')).map(r => ({
+        url: r.querySelector('.m-url').value.trim(),
+        title: r.querySelector('.m-title').value.trim(),
+      })).filter(m => m.url);
+    }
+
+    // history
+    async function loadHistory() {
+      const box = $('#history');
+      box.innerHTML = '<div class="hint">در حال بارگذاری…</div>';
+      try {
+        const r = await fetch('/api/history');
+        const d = await r.json();
+        if (!d.queries || !d.queries.length) { box.innerHTML = '<div class="hint">هنوز تحلیلی ذخیره نشده. اول یک «تحلیل جدید» اجرا کنید.</div>'; return; }
+        box.innerHTML = '';
+        d.queries.forEach(q => {
+          const el = document.createElement('div');
+          el.className = 'hist-item';
+          el.innerHTML = `<span class="material-symbols-rounded">description</span>
+            <span class="hist-q">${escapeHtml(q.query)}</span>
+            <span class="hist-meta">${q.urls} صفحه · ${q.chunks} چانک · ${q.timestamp}</span>`;
+          el.addEventListener('click', () => {
+            document.querySelectorAll('.hist-item').forEach(x => x.classList.remove('sel'));
+            el.classList.add('sel'); selectedHistId = q.id;
+          });
+          box.appendChild(el);
+        });
+      } catch (e) { box.innerHTML = '<div class="hint">خطا در بارگذاری تاریخچه.</div>'; }
+    }
+
+    function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    // run new analysis
+    $('#run-new').addEventListener('click', async () => {
+      clearError(); saveKeys();
+      const keyword = $('#keyword').value.trim();
+      if (!SERVER_HAS_SERPER && !serper.value.trim()) { $('#settings').open = true; return showError('کلید Serper لازم است (در تنظیمات).'); }
+      if (!SERVER_HAS_VOYAGE && !voyage.value.trim()) { $('#settings').open = true; return showError('کلید Voyage لازم است (در تنظیمات).'); }
+      if (!keyword) return showError('کیورد نمی‌تواند خالی باشد.');
+      localStorage.setItem('last_kw', keyword);
+      const body = { keyword, serper_key: serper.value.trim(), voyage_key: voyage.value.trim(),
+        gl: $('#gl').value.trim(), hl: $('#hl').value.trim(), top_n: parseInt($('#topn').value),
+        manual_urls: collectMurls() };
+      await startJob('/api/analyze', body, $('#run-new'), keyword);
+    });
+
+    // run db rerank
+    $('#run-db').addEventListener('click', async () => {
+      clearError(); saveKeys();
+      const keyword = $('#newkw').value.trim();
+      if (!selectedHistId) return showError('یک تحلیل از لیست انتخاب کنید.');
+      if (!SERVER_HAS_VOYAGE && !voyage.value.trim()) { $('#settings').open = true; return showError('کلید Voyage لازم است (در تنظیمات).'); }
+      if (!keyword) return showError('کیورد جدید نمی‌تواند خالی باشد.');
+      const body = { keyword, voyage_key: voyage.value.trim(), query_id: selectedHistId };
+      await startJob('/api/rerank', body, $('#run-db'), keyword);
+    });
+
+    async function startJob(endpoint, body, btn, keyword) {
+      btn.disabled = true; btn.classList.add('loading');
+      $('#results-card').classList.add('hidden');
+      $('#prog').classList.add('show');
+      $('#prog-bar').style.width = '0%';
+      $('#log').innerHTML = ''; $('#prog-title').textContent = 'در حال پردازش…';
+      try {
+        const r = await fetch(endpoint, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'خطای ناشناخته');
+        await pollJob(d.job_id, keyword);
+      } catch (e) {
+        showError(e.message); $('#prog').classList.remove('show');
+      } finally { btn.disabled = false; btn.classList.remove('loading'); }
+    }
+
+    let lastLogLen = 0;
+    async function pollJob(jobId, keyword) {
+      lastLogLen = 0;
+      while (true) {
+        await new Promise(r => setTimeout(r, 1400));
+        let d;
+        try { d = await (await fetch('/api/job/' + jobId)).json(); } catch (e) { continue; }
+        if (d.log && d.log.length > lastLogLen) {
+          const logBox = $('#log');
+          for (let i = lastLogLen; i < d.log.length; i++) {
+            const line = document.createElement('div'); line.textContent = d.log[i]; logBox.appendChild(line);
+          }
+          logBox.scrollTop = logBox.scrollHeight; lastLogLen = d.log.length;
+        }
+        $('#prog-bar').style.width = (d.progress || 0) + '%';
+        if (d.status === 'done') { $('#prog-title').textContent = 'تمام شد ✓'; renderResults(d, keyword); return; }
+        if (d.status === 'error') { $('#prog').classList.remove('show'); showError(d.error || 'خطا در پردازش'); return; }
+      }
+    }
+
+    function fmt(n) { return (n).toFixed(4); }
+
+    function renderResults(job, keyword) {
+      currentQueryId = job.query_id;
+      $('#res-q').textContent = keyword;
+      const box = $('#results'); box.innerHTML = '';
+      const results = job.results || [];
+      results.forEach(u => {
+        const card = document.createElement('div'); card.className = 'url-card';
+        const isManual = String(u.rank) === 'دستی';
+        let domain = u.url; try { domain = new URL(u.url).hostname.replace(/^www\./,''); } catch(e){}
+        const head = document.createElement('div'); head.className = 'url-head';
+        head.innerHTML = `<div class="rank-badge ${isManual?'manual':''}">${isManual?'دستی':u.rank}</div>
+          <div class="url-meta"><div class="url-title">${escapeHtml(u.title||'(بدون عنوان)')}</div>
+          <a class="url-link" href="${u.url}" target="_blank" rel="noopener">${escapeHtml(domain)}</a></div>
+          <div class="url-stats">
+            <span class="chip chip-max">بیشینه ${fmt(u.max_score||0)}</span>
+            <span class="chip">میانگین ${fmt(u.avg_score||0)}</span>
+            <span class="chip">${u.chunk_count||u.chunks.length} چانک</span>
+          </div>`;
+        card.appendChild(head);
+        const list = document.createElement('div'); list.className = 'chunk-list';
+        const chunks = u.chunks;
+        const LIMIT = 8;
+        chunks.forEach((c, i) => {
+          const el = document.createElement('div'); el.className = 'chunk'; if (i >= LIMIT) el.classList.add('hidden');
+          el.dataset.idx = i;
+          el.innerHTML = `<div class="chunk-bar-row"><div class="chunk-bar"><i style="width:${Math.max(c.score*100,2)}%"></i></div>
+            <span class="chunk-score">${fmt(c.score)}</span></div>
+            <div class="chunk-text">${escapeHtml(c.chunk)}</div>`;
+          list.appendChild(el);
+        });
+        card.appendChild(list);
+        if (chunks.length > LIMIT) {
+          const more = document.createElement('button'); more.className = 'btn btn-ghost btn-sm more';
+          more.textContent = `نمایش همه (${chunks.length})`;
+          more.addEventListener('click', () => {
+            list.querySelectorAll('.chunk.hidden').forEach(x => x.classList.remove('hidden')); more.remove();
+          });
+          card.appendChild(more);
+        }
+        box.appendChild(card);
+      });
+      $('#export-btn').onclick = () => { if (currentQueryId) location.href = '/api/export/' + currentQueryId; };
+      $('#results-card').classList.remove('hidden');
+      $('#results-card').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  </script>
+</body>
+</html>

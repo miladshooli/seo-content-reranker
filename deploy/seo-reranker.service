@@ -1,0 +1,18 @@
+[Unit]
+Description=SEO Content Reranker (Flask + Gunicorn)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/seo-reranker
+Environment="RERANKER_DB=/opt/seo-reranker/data.db"
+# Keys are entered in the UI by default. Optional server-side fallbacks:
+# Environment="SERPER_KEY=..."
+# Environment="VOYAGE_API_KEY=..."
+# 1 worker so the in-memory job registry + background threads stay consistent.
+ExecStart=/usr/bin/gunicorn --workers 1 --threads 8 --timeout 120 --bind 127.0.0.1:8001 app:app
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

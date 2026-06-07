@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.log
+.env
+*.tar.gz
+.DS_Store
+# data + secrets — never commit
+*.db
+data.db
+*.key
+*.exp
