@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>تحلیلگر محتوای SEO · Reranker</title>
+  <script>(function(){try{var m=document.cookie.match(/serpiwi_theme=(\w+)/);var t=m?m[1]:(localStorage.getItem('serpiwi_theme')||'system');var d=t==='dark'||(t==='system'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.dataset.theme=d?'dark':'light';}catch(e){}})();</script>
+  <link rel="stylesheet" href="/static/serpiwi-ui.css"/>
+  <script src="/static/serpiwi-shell.js" defer></script>
   <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png" />
   <link rel="apple-touch-icon" href="/static/favicon-180x180.png" />
@@ -23,15 +26,15 @@
       --s2: 0 4px 14px rgba(13,148,136,.14), 0 2px 6px rgba(0,0,0,.06);
       --r: 16px;
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
+    
+html[data-theme="dark"] {
         --p: #5eead4; --p-h: #7df0de; --on-p: #06302b; --p-c: #134e48; --on-p-c: #ccfbf1;
         --accent: #a5b4fc;
         --surface: #161e1d; --surf-v: #1f2a29; --bg: #0e1514;
         --on-s: #e3eceb; --on-s-v: #b3c2c0; --outline: #364442;
         --s1: 0 1px 3px rgba(0,0,0,.4); --s2: 0 6px 18px rgba(0,0,0,.5);
       }
-    }
+    
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
     body { font-family: 'Vazirmatn', system-ui, sans-serif; background: var(--bg);
@@ -92,7 +95,8 @@
     details.settings summary .material-symbols-rounded { color: var(--p); }
     .alert { display: none; align-items: center; gap: 10px; background: #fdecec; color: var(--err);
       border: 1px solid #f5c2c2; border-radius: 12px; padding: 12px 15px; margin-bottom: 16px; font-size: .9rem; }
-    @media (prefers-color-scheme: dark) { .alert { background: #3a1414; border-color: #6b2020; color: #ffb4ab; } }
+    
+html[data-theme="dark"] .alert { background: #3a1414; border-color: #6b2020; color: #ffb4ab; } 
     .alert.show { display: flex; }
     /* manual urls */
     .murl { display: flex; gap: 8px; margin-bottom: 8px; }
