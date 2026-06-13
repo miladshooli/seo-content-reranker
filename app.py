@@ -20,6 +20,8 @@ RERANK_BATCH = 100          # docs per Voyage call (token-safe)
 MAX_CHUNKS_PER_URL = 200    # cap to control cost; logged when hit
 
 app = Flask(__name__)
+from serpiwi_auth import init_auth
+init_auth(app, "Serpiwi · ری‌رنکر محتوا")
 
 # ----------------------------------------------------------------------------
 # in-memory job registry (results are also persisted to SQLite)
